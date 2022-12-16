@@ -121,8 +121,6 @@ def check_ipv6_address(on_ip_change):
         on_ip_change(current_ipv6_address)
         with open(filename, 'w') as file:
             file.write(current_ipv6_address)
-    else:
-        logger.info("IPv6地址未改变: %s", current_ipv6_address)
 
 
 @click.command()
