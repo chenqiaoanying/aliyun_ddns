@@ -55,11 +55,8 @@ def is_public_ipv6(address: str):
     return prefix != "" and int(prefix, 16) & int("E000", 16) == int("2000", 16)
 
 
-def retrieve_public_ipv6() -> str | None:
-    ret = subprocess.run(["ip", "-6", "a"], stdout=subprocess.PIPE, shell=False)
-    if not ret.returncode == 0:
-        raise Exception("fail to execute ip command")
-    ip_result = ret.stdout.decode("UTF-8")
+def retrieve_public_ipv6():
+    ip_result = subprocess.check_output(["ip", "-6", "a"]).decode("UTF-8")
     ipv6_addresses = re.findall(r'(?<=inet6\s)[0-9a-fA-F:]*(?=/?)', ip_result, re.U)
     public_ipv6_address = []
     for ipv6_address in ipv6_addresses:
