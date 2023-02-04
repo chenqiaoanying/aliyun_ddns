@@ -14,7 +14,7 @@ fi
 {
   echo "SHELL=/bin/sh"
   echo "PATH=/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin"
-  echo "*/1 * * * * root python /aliyun_ddns --key $ALIYUN_ACCESS_KEY_ID --secret $ALIYUN_ACCESS_SECRET ${DOMAIN//,/ } >> ${DDNS_LOG_FILE} 2>&1"
+  echo "*/1 * * * * root python /app/main.py --key $ALIYUN_ACCESS_KEY_ID --secret $ALIYUN_ACCESS_SECRET ${DOMAIN//,/ } >> ${DDNS_LOG_FILE} 2>&1"
 } >/etc/crontab
 
 exec cron &
