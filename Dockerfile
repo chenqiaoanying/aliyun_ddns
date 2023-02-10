@@ -4,9 +4,9 @@ RUN apt-get update && apt-get install cron iproute2 -y
 
 # install python package
 COPY requirements.txt /app/requirements.txt
+RUN pip install -r /app/requirements.txt
 COPY main.py /app/main.py
 COPY aliyun_ddns /app/aliyun_ddns
-RUN pip install -r /app/requirements.txt
 
 ENV DDNS_LOG_FILE="/var/log/ddns.log"
 

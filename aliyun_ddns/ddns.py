@@ -8,45 +8,45 @@ from aliyunsdkcore.client import AcsClient
 from .logger import logger
 
 
-def get(aliyun_client: AcsClient, domain_name, RR, type):
+def get(aliyun_client: AcsClient, domain_name, resolve_record, record_type):
     from aliyunsdkalidns.request.v20150109.DescribeSubDomainRecordsRequest import DescribeSubDomainRecordsRequest
     request = DescribeSubDomainRecordsRequest()
     request.set_accept_format('json')
     request.set_DomainName(domain_name)
-    request.set_SubDomain(RR + '.' + domain_name)
-    request.set_Type(type)
+    request.set_SubDomain(resolve_record + '.' + domain_name)
+    request.set_Type(record_type)
     return json.loads(aliyun_client.do_action_with_exception(request))
 
 
-def update(aliyun_client: AcsClient, record_id, RR, type, value):
+def update(aliyun_client: AcsClient, record_id, resolve_record, record_type, value):
     from aliyunsdkalidns.request.v20150109.UpdateDomainRecordRequest import UpdateDomainRecordRequest
     request = UpdateDomainRecordRequest()
     request.set_accept_format('json')
     request.set_RecordId(record_id)
-    request.set_RR(RR)
-    request.set_Type(type)
+    request.set_RR(resolve_record)
+    request.set_Type(record_type)
     request.set_Value(value)
     return aliyun_client.do_action_with_exception(request)
 
 
-def add(aliyun_client: AcsClient, domain_name, RR, type, value):
+def add(aliyun_client: AcsClient, domain_name, resolve_record, record_type, value):
     from aliyunsdkalidns.request.v20150109.AddDomainRecordRequest import AddDomainRecordRequest
     request = AddDomainRecordRequest()
     request.set_accept_format('json')
     request.set_DomainName(domain_name)
-    request.set_RR(RR)
-    request.set_Type(type)
+    request.set_RR(resolve_record)
+    request.set_Type(record_type)
     request.set_Value(value)
     return aliyun_client.do_action_with_exception(request)
 
 
-def delete(aliyun_client: AcsClient, domain_name, RR, type):
+def delete(aliyun_client: AcsClient, domain_name, resolve_record, record_type):
     from aliyunsdkalidns.request.v20150109.DeleteSubDomainRecordsRequest import DeleteSubDomainRecordsRequest
     request = DeleteSubDomainRecordsRequest()
     request.set_accept_format('json')
     request.set_DomainName(domain_name)
-    request.set_RR(RR)
-    request.set_Type(type)
+    request.set_RR(resolve_record)
+    request.set_Type(record_type)
     return aliyun_client.do_action_with_exception(request)
 
 
@@ -69,15 +69,20 @@ def retrieve_public_ipv6():
 
 
 def update_dns_mapping(aliyun_client: AcsClient, subdomain: str, ipv6_address: str):
-    domain_segment = subdomain.split(".")
-    if len(domain_segment) == 3:
-        resolve_record = domain_segment[0]
-        domain = domain_segment[1] + "." + domain_segment[2]
-    else:
+    if subdomain.count(".") == 1:
         resolve_record = "@"
-        domain = domain_segment[0] + "." + domain_segment[1]
+        domain = subdomain
+    else:
+        partition_index = subdomain.rindex(".", 0, subdomain.rindex("."))
+        resolve_record = subdomain[:partition_index]
+        domain = subdomain[partition_index + 1:]
 
-    domain_list = get(aliyun_client, domain, resolve_record, "AAAA")
+    try:
+        domain_list = get(aliyun_client, domain, resolve_record, "AAAA")
+    except:
+        logger.exception("fail to get record from aliyun")
+        domain_list = {'TotalCount': 0, 'DomainRecords': {}}
+
     if domain_list['TotalCount'] == 0:
         logger.info("域名%s的解析信息不存在。", subdomain)
     else:
