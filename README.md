@@ -1,5 +1,5 @@
 # aliyun_ddns
-check public ipv6 per minute and update resolve records on aliyun.
+check public ipv6 per minute and update resolve records on aliyun once ip changed.
 
 ```
 docker run -d \
